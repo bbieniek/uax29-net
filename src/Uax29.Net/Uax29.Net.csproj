@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Uax29.Net</RootNamespace>
+    <AssemblyName>Uax29.Net</AssemblyName>
+
+    <!-- NuGet package metadata -->
+    <PackageId>Uax29.Net</PackageId>
+    <Authors>Baltazar Bieniek</Authors>
+    <Description>Managed .NET implementation of Unicode UAX #29 word boundary segmentation. Zero dependencies, no native ICU required.</Description>
+    <PackageTags>unicode;uax29;tokenizer;word-boundary;nlp;text-segmentation;icu;quanteda</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/bbieniek/uax29-net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/bbieniek/uax29-net.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <!-- SourceLink for debugging -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="All" />
+  </ItemGroup>
+</Project>
