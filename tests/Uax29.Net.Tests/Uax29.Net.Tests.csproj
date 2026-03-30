@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -12,5 +12,9 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Include="NUnit" Version="4.*" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="WordBreakTest-15.0.0.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
