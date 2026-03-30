@@ -27,69 +27,69 @@ namespace Uax29.Net
 
             // --- Fast-path invariants ---
             // Fast path: same-type sequences never break
-            if (left == WB.ALetter && right == WB.ALetter)
+            if (left.Is(WB.ALetter) && right.Is(WB.ALetter))
             {
                 return false;    // WB5
             }
 
-            if (left == WB.Numeric && right == WB.Numeric)
+            if (left.Is(WB.Numeric) && right.Is(WB.Numeric))
             {
                 return false;    // WB8
             }
 
-            if (left == WB.WSegSpace && right == WB.WSegSpace)
+            if (left.Is(WB.WSegSpace) && right.Is(WB.WSegSpace))
             {
                 return false; // WB3d
             }
 
             // --- Line break handling (WB3, WB3a, WB3b) ---
             // WB3: CRLF
-            if (left == WB.CR && right == WB.LF)
+            if (left.Is(WB.CR) && right.Is(WB.LF))
             {
                 return false;
             }
 
             // WB3a/3b: Break around newlines
-            if (left == WB.Newline || left == WB.CR || left == WB.LF)
+            if (left.Is(WB.LineBreak))
             {
                 return true;
             }
 
-            if (right == WB.Newline || right == WB.CR || right == WB.LF)
+            if (right.Is(WB.LineBreak))
             {
                 return true;
             }
 
             // --- ZWJ and ignorable format handling (WB3c, WB4) ---
             // WB3c: ZWJ x Extended_Pictographic
-            if (left == WB.ZWJ && IsExtendedPictographic(text, pos))
+            if (left.Is(WB.ZWJ) && IsExtendedPictographic(text, pos))
             {
                 return false;
             }
 
             // WB4: Don't break before Extend/Format/ZWJ
-            if (right == WB.Extend || right == WB.Format || right == WB.ZWJ)
+            if (right.Is(WB.Ignorable))
             {
                 return false;
             }
 
             // Effective left (skipping Extend/Format/ZWJ)
-            var effLeft = (left == WB.Extend || left == WB.Format || left == WB.ZWJ)
+            var effLeft = left.Is(WB.Ignorable)
                 ? GetEffectiveLeft(props, pos - 1) : left;
             var effRight = right;
 
             // --- Custom keep_hyphens extension ---
             // keep_hyphens: (AHLetter|Numeric) x Hyphen x (AHLetter|Numeric)
-            if (IsAHLetterOrNumeric(effLeft) && right == WB.Hyphen)
+            if (effLeft.Is(WB.AHLetterOrNumeric) && right.Is(WB.Hyphen))
             {
-                if (pos + 1 < len && IsAHLetterOrNumeric(GetEffectiveRight(props, pos + 1, len)))
+                if (pos + 1 < len && GetEffectiveRight(props, pos + 1, len).Is(WB.AHLetterOrNumeric))
                 {
                     return false;
                 }
             }
-            if (left == WB.Hyphen && IsAHLetterOrNumeric(effRight))
+            if (left.Is(WB.Hyphen) && effRight.Is(WB.AHLetterOrNumeric))
             {
-                if (pos >= 2 && IsAHLetterOrNumeric(GetEffectiveLeft(props, pos - 2)))
+                if (pos >= 2 && GetEffectiveLeft(props, pos - 2).Is(WB.AHLetterOrNumeric))
                 {
                     return false;
                 }
@@ -97,43 +97,43 @@ namespace Uax29.Net
 
             // --- Core ALetter/Numeric adjacency (WB5, WB8, WB9, WB10) ---
             // WB5: AHLetter x AHLetter
-            if (IsAHLetter(effLeft) && IsAHLetter(effRight))
+            if (effLeft.Is(WB.AHLetter) && effRight.Is(WB.AHLetter))
             {
                 return false;
             }
 
             // WB9: AHLetter x Numeric
-            if (IsAHLetter(effLeft) && effRight == WB.Numeric)
+            if (effLeft.Is(WB.AHLetter) && effRight.Is(WB.Numeric))
             {
                 return false;
             }
 
             // WB10: Numeric x AHLetter
-            if (effLeft == WB.Numeric && IsAHLetter(effRight))
+            if (effLeft.Is(WB.Numeric) && effRight.Is(WB.AHLetter))
             {
                 return false;
             }
 
             // WB8: Numeric x Numeric (with Extend in between)
-            if (effLeft == WB.Numeric && effRight == WB.Numeric)
+            if (effLeft.Is(WB.Numeric) && effRight.Is(WB.Numeric))
             {
                 return false;
             }
 
             // --- MidLetter and MidNumLet bridges (WB6, WB7) ---
             // WB6: AHLetter x (MidLetter|MidNumLet|Single_Quote) AHLetter
-            if (IsAHLetter(effLeft) && IsMidLetterLike(right) && pos + 1 < len)
+            if (effLeft.Is(WB.AHLetter) && right.Is(WB.MidLetterLike) && pos + 1 < len)
             {
-                if (IsAHLetter(GetEffectiveRight(props, pos + 1, len)))
+                if (GetEffectiveRight(props, pos + 1, len).Is(WB.AHLetter))
                 {
                     return false;
                 }
             }
 
             // WB7: AHLetter (MidLetter|MidNumLet|Single_Quote) x AHLetter
-            if (IsMidLetterLike(left) && IsAHLetter(effRight) && pos >= 2)
+            if (left.Is(WB.MidLetterLike) && effRight.Is(WB.AHLetter) && pos >= 2)
             {
-                if (IsAHLetter(GetEffectiveLeft(props, pos - 2)))
+                if (GetEffectiveLeft(props, pos - 2).Is(WB.AHLetter))
                 {
                     return false;
                 }
@@ -141,24 +141,24 @@ namespace Uax29.Net
 
             // --- Hebrew quote rules (WB7a, WB7b, WB7c) ---
             // WB7a: Hebrew_Letter x Single_Quote
-            if (effLeft == WB.HebrewLetter && effRight == WB.SingleQuote)
+            if (effLeft.Is(WB.HebrewLetter) && effRight.Is(WB.SingleQuote))
             {
                 return false;
             }
 
             // WB7b: Hebrew_Letter x Double_Quote Hebrew_Letter
-            if (effLeft == WB.HebrewLetter && right == WB.DoubleQuote && pos + 1 < len)
+            if (effLeft.Is(WB.HebrewLetter) && right.Is(WB.DoubleQuote) && pos + 1 < len)
             {
-                if (GetEffectiveRight(props, pos + 1, len) == WB.HebrewLetter)
+                if (GetEffectiveRight(props, pos + 1, len).Is(WB.HebrewLetter))
                 {
                     return false;
                 }
             }
 
             // WB7c: Hebrew_Letter Double_Quote x Hebrew_Letter
-            if (left == WB.DoubleQuote && effRight == WB.HebrewLetter && pos >= 2)
+            if (left.Is(WB.DoubleQuote) && effRight.Is(WB.HebrewLetter) && pos >= 2)
             {
-                if (GetEffectiveLeft(props, pos - 2) == WB.HebrewLetter)
+                if (GetEffectiveLeft(props, pos - 2).Is(WB.HebrewLetter))
                 {
                     return false;
                 }
@@ -166,18 +166,18 @@ namespace Uax29.Net
 
             // --- Numeric punctuation bridges (WB11, WB12) ---
             // WB11: Numeric (MidNum|MidNumLet|Single_Quote) x Numeric
-            if (IsMidNumLike(left) && effRight == WB.Numeric && pos >= 2)
+            if (left.Is(WB.MidNumLike) && effRight.Is(WB.Numeric) && pos >= 2)
             {
-                if (GetEffectiveLeft(props, pos - 2) == WB.Numeric)
+                if (GetEffectiveLeft(props, pos - 2).Is(WB.Numeric))
                 {
                     return false;
                 }
             }
 
             // WB12: Numeric x (MidNum|MidNumLet|Single_Quote) Numeric
-            if (effLeft == WB.Numeric && IsMidNumLike(right) && pos + 1 < len)
+            if (effLeft.Is(WB.Numeric) && right.Is(WB.MidNumLike) && pos + 1 < len)
             {
-                if (GetEffectiveRight(props, pos + 1, len) == WB.Numeric)
+                if (GetEffectiveRight(props, pos + 1, len).Is(WB.Numeric))
                 {
                     return false;
                 }
@@ -185,27 +185,27 @@ namespace Uax29.Net
 
             // --- Katakana and ExtendNumLet rules (WB13, WB13a, WB13b) ---
             // WB13: Katakana x Katakana
-            if (effLeft == WB.Katakana && effRight == WB.Katakana)
+            if (effLeft.Is(WB.Katakana) && effRight.Is(WB.Katakana))
             {
                 return false;
             }
 
             // WB13a: (AHLetter|Numeric|Katakana|ExtendNumLet) x ExtendNumLet
-            if (effRight == WB.ExtendNumLet &&
-                (IsAHLetter(effLeft) || effLeft == WB.Numeric || effLeft == WB.Katakana || effLeft == WB.ExtendNumLet))
+            if (effRight.Is(WB.ExtendNumLet) &&
+                effLeft.Is(WB.AHLetter | WB.Numeric | WB.Katakana | WB.ExtendNumLet))
             {
                 return false;
             }
 
             // WB13b: ExtendNumLet x (AHLetter|Numeric|Katakana)
-            if (effLeft == WB.ExtendNumLet &&
-                (IsAHLetter(effRight) || effRight == WB.Numeric || effRight == WB.Katakana))
+            if (effLeft.Is(WB.ExtendNumLet) &&
+                effRight.Is(WB.AHLetter | WB.Numeric | WB.Katakana))
             {
                 return false;
             }
 
             // WB15/WB16: Keep Regional_Indicator in pairs (flag sequences).
-            if (effLeft == WB.RegionalIndicator && effRight == WB.RegionalIndicator)
+            if (effLeft.Is(WB.RegionalIndicator) && effRight.Is(WB.RegionalIndicator))
             {
                 if ((CountConsecutiveRegionalIndicatorsToLeft(props, pos) & 1) == 1)
                 {
@@ -220,14 +220,14 @@ namespace Uax29.Net
 
         private static WB GetEffectiveLeft(WB[] props, int pos)
         {
-            while (pos >= 0 && (props[pos] == WB.Extend || props[pos] == WB.Format || props[pos] == WB.ZWJ))
+            while (pos >= 0 && props[pos].Is(WB.Ignorable))
                 pos--;
             return pos >= 0 ? props[pos] : WB.Other;
         }
 
         private static WB GetEffectiveRight(WB[] props, int pos, int length)
         {
-            while (pos < length && (props[pos] == WB.Extend || props[pos] == WB.Format || props[pos] == WB.ZWJ))
+            while (pos < length && props[pos].Is(WB.Ignorable))
                 pos++;
             return pos < length ? props[pos] : WB.Other;
         }
@@ -261,12 +261,12 @@ namespace Uax29.Net
 
             while (i >= 0)
             {
-                while (i >= 0 && (props[i] == WB.Extend || props[i] == WB.Format || props[i] == WB.ZWJ))
+                while (i >= 0 && props[i].Is(WB.Ignorable))
                 {
                     i--;
                 }
 
-                if (i < 0 || props[i] != WB.RegionalIndicator)
+                if (i < 0 || !props[i].Is(WB.RegionalIndicator))
                 {
                     break;
                 }

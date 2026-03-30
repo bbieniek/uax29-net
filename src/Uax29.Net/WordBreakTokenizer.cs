@@ -17,31 +17,6 @@ namespace Uax29.Net
     /// </summary>
     public static partial class WordBreakTokenizer
     {
-        // UAX #29 Word_Break property values
-        private enum WB : byte
-        {
-            Other,
-            CR,
-            LF,
-            Newline,
-            ALetter,
-            HebrewLetter,
-            Numeric,
-            MidLetter,
-            MidNum,
-            MidNumLet,
-            SingleQuote,
-            DoubleQuote,
-            ExtendNumLet,
-            Katakana,
-            WSegSpace,
-            Extend,
-            Format,
-            ZWJ,
-            Hyphen,
-            RegionalIndicator,
-        }
-
         /// <summary>
         /// Tokenizes <paramref name="text"/> into word and separator spans
         /// using UAX #29 word boundary rules.
@@ -66,7 +41,7 @@ namespace Uax29.Net
             ClassifyAll(text, props);
 
             var tokenStart = 0;
-            var tokenHasLetterOrDigit = IsLetterOrDigitWB(props[0]);
+            var tokenHasLetterOrDigit = props[0].Is(WB.LetterOrDigit);
 
             for (var pos = 1; pos < len; pos++)
             {
@@ -79,11 +54,11 @@ namespace Uax29.Net
                 {
                     spans.Add(new TokenSpan(tokenStart, pos - tokenStart, tokenHasLetterOrDigit));
                     tokenStart = pos;
-                    tokenHasLetterOrDigit = IsLetterOrDigitWB(props[pos]);
+                    tokenHasLetterOrDigit = props[pos].Is(WB.LetterOrDigit);
                 }
                 else
                 {
-                    tokenHasLetterOrDigit = tokenHasLetterOrDigit || IsLetterOrDigitWB(props[pos]);
+                    tokenHasLetterOrDigit = tokenHasLetterOrDigit || props[pos].Is(WB.LetterOrDigit);
                 }
             }
 
