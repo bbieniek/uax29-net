@@ -130,8 +130,12 @@ namespace Uax29.Net
             }
 
             // Katakana
-            if ((c >= '\u30A0' && c <= '\u30FF') ||
+            if ((c >= '\u3031' && c <= '\u3035') ||
+                (c >= '\u309B' && c <= '\u309C') ||
+                (c >= '\u30A0' && c <= '\u30FF') ||
                 (c >= '\u31F0' && c <= '\u31FF') ||
+                (c >= '\u32D0' && c <= '\u32FE') ||
+                (c >= '\u3300' && c <= '\u3357') ||
                 (c >= '\uFF65' && c <= '\uFF9F'))
             {
                 return WB.Katakana;
@@ -184,6 +188,18 @@ namespace Uax29.Net
             if (codePoint >= 0x1F1E6 && codePoint <= 0x1F1FF)
             {
                 return WB.RegionalIndicator;
+            }
+
+            // Supplementary Katakana ranges (Unicode 15.0 WordBreakProperty.txt)
+            if ((codePoint >= 0x1AFF0 && codePoint <= 0x1AFF3) ||
+                (codePoint >= 0x1AFF5 && codePoint <= 0x1AFFB) ||
+                (codePoint >= 0x1AFFD && codePoint <= 0x1AFFE) ||
+                codePoint == 0x1B000 ||
+                (codePoint >= 0x1B120 && codePoint <= 0x1B122) ||
+                codePoint == 0x1B155 ||
+                (codePoint >= 0x1B164 && codePoint <= 0x1B167))
+            {
+                return WB.Katakana;
             }
 
             if (cat == UnicodeCategory.UppercaseLetter ||
