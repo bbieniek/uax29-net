@@ -79,6 +79,21 @@ namespace Uax29.Net.Tests
             => AssertTokens("key:value", "key:value");
 
         [Test]
+        public void ColonSplits_WithQuantedaOptions()
+        {
+            var actual = WordBreakTokenizer.TokenizeToStrings("key:value", WordBreakOptions.Quanteda);
+            Assert.That(actual, Is.EqualTo(new List<string>(new[] { "key", ":", "value" })));
+        }
+
+        [Test]
+        public void QuantedaOptions_PreservesNonExcludedMidLetter()
+        {
+            // Middle dot (U+00B7) is MidLetter and NOT excluded by Quanteda
+            var actual = WordBreakTokenizer.TokenizeToStrings("a\u00B7b", WordBreakOptions.Quanteda);
+            Assert.That(actual, Is.EqualTo(new List<string>(new[] { "a\u00B7b" })));
+        }
+
+        [Test]
         public void PipeSeparator()
             => AssertTokens("price|100", "price", "|", "100");
 

@@ -250,7 +250,35 @@ namespace Uax29.Net
             return WB.Other;
         }
 
+        internal static void ApplyMidLetterExclusions(string text, WB[] props, WordBreakOptions options)
+        {
+            foreach (var ch in options.MidLetterExclusions)
+            {
+                for (var i = 0; i < text.Length; i++)
+                {
+                    if (text[i] == ch && props[i].Is(WB.MidLetter))
+                    {
+                        props[i] = WB.Other;
+                    }
+                }
+            }
+        }
+
 #if NET8_0_OR_GREATER
+        internal static void ApplyMidLetterExclusions(System.ReadOnlySpan<char> text, WB[] props, WordBreakOptions options)
+        {
+            foreach (var ch in options.MidLetterExclusions)
+            {
+                for (var i = 0; i < text.Length; i++)
+                {
+                    if (text[i] == ch && props[i].Is(WB.MidLetter))
+                    {
+                        props[i] = WB.Other;
+                    }
+                }
+            }
+        }
+
         internal static void ClassifyAll(System.ReadOnlySpan<char> text, WB[] props, int offset)
         {
             for (var i = offset; i < text.Length; i++)

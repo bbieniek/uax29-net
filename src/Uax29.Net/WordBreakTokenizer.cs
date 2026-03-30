@@ -27,6 +27,49 @@ namespace Uax29.Net
         {
             if (string.IsNullOrEmpty(text))
             {
+                return [];
+            }
+
+            var len = text.Length;
+            var spans = new List<TokenSpan>(len / 5 + 1);
+
+            var props = new WB[len];
+            WordBreakClassifier.ClassifyAll(text, props);
+
+            var tokenStart = 0;
+            var tokenHasLetterOrDigit = props[0].Is(WB.LetterOrDigit);
+
+            for (var pos = 1; pos < len; pos++)
+            {
+                if (char.IsHighSurrogate(text[pos - 1]) && char.IsLowSurrogate(text[pos]))
+                {
+                    continue;
+                }
+
+                if (WordBreakRules.ShouldBreak(text, props, pos, len))
+                {
+                    spans.Add(new TokenSpan(tokenStart, pos - tokenStart, tokenHasLetterOrDigit));
+                    tokenStart = pos;
+                    tokenHasLetterOrDigit = props[pos].Is(WB.LetterOrDigit);
+                }
+                else
+                {
+                    tokenHasLetterOrDigit = tokenHasLetterOrDigit || props[pos].Is(WB.LetterOrDigit);
+                }
+            }
+
+            spans.Add(new TokenSpan(tokenStart, len - tokenStart, tokenHasLetterOrDigit));
+            return spans;
+        }
+
+        /// <summary>
+        /// Tokenizes <paramref name="text"/> into word and separator spans
+        /// using UAX #29 word boundary rules with the specified options.
+        /// </summary>
+        public static List<TokenSpan> Tokenize(string text, WordBreakOptions options)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
                 return new List<TokenSpan>();
             }
 
@@ -35,6 +78,11 @@ namespace Uax29.Net
 
             var props = new WB[len];
             WordBreakClassifier.ClassifyAll(text, props);
+
+            if (options.HasExclusions)
+            {
+                WordBreakClassifier.ApplyMidLetterExclusions(text, props, options);
+            }
 
             var tokenStart = 0;
             var tokenHasLetterOrDigit = props[0].Is(WB.LetterOrDigit);
@@ -78,6 +126,21 @@ namespace Uax29.Net
             return result;
         }
 
+        /// <summary>
+        /// Tokenizes <paramref name="text"/> and returns the token strings
+        /// using the specified options.
+        /// </summary>
+        public static List<string> TokenizeToStrings(string text, WordBreakOptions options)
+        {
+            var spans = Tokenize(text, options);
+            var result = new List<string>(spans.Count);
+            foreach (var span in spans)
+            {
+                result.Add(text.Substring(span.Start, span.Length));
+            }
+            return result;
+        }
+
 #if NET8_0_OR_GREATER
         /// <summary>
         /// Returns a zero-allocation enumerator over word boundary tokens.
@@ -87,6 +150,15 @@ namespace Uax29.Net
         public static WordTokenEnumerator EnumerateWords(ReadOnlySpan<char> text)
         {
             return new WordTokenEnumerator(text);
+        }
+
+        /// <summary>
+        /// Returns a zero-allocation enumerator over word boundary tokens
+        /// using the specified options.
+        /// </summary>
+        public static WordTokenEnumerator EnumerateWords(ReadOnlySpan<char> text, WordBreakOptions options)
+        {
+            return new WordTokenEnumerator(text, options);
         }
 #endif
     }

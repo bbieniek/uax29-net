@@ -25,7 +25,7 @@ namespace Uax29.Net.Tests
             var tokens = new List<string>();
             foreach (var token in WordBreakTokenizer.EnumerateWords("hello".AsSpan()))
                 tokens.Add(token.Span.ToString());
-            Assert.That(tokens, Is.EqualTo(new[] { "hello" }));
+            Assert.That(tokens, Is.EqualTo(["hello"]));
         }
 
         [Test]

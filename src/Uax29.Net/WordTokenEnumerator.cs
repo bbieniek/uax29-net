@@ -47,9 +47,24 @@ namespace Uax29.Net
             _pos = 0;
             _current = default;
 
-            _props = GetPropsBuffer(input.Length);
+            _props = input.Length > 0 ? new WB[input.Length] : Array.Empty<WB>();
             if (input.Length > 0)
                 WordBreakClassifier.ClassifyAll(input, _props, 0);
+        }
+
+        internal WordTokenEnumerator(ReadOnlySpan<char> input, WordBreakOptions options)
+        {
+            _input = input;
+            _pos = 0;
+            _current = default;
+
+            _props = input.Length > 0 ? new WB[input.Length] : Array.Empty<WB>();
+            if (input.Length > 0)
+            {
+                WordBreakClassifier.ClassifyAll(input, _props, 0);
+                if (options.HasExclusions)
+                    WordBreakClassifier.ApplyMidLetterExclusions(input, _props, options);
+            }
         }
 
         public readonly WordToken Current => _current;
@@ -87,20 +102,6 @@ namespace Uax29.Net
         }
 
         public readonly WordTokenEnumerator GetEnumerator() => this;
-
-        [ThreadStatic]
-        private static WB[]? t_enumBuffer;
-
-        private static WB[] GetPropsBuffer(int minSize)
-        {
-            var buf = t_enumBuffer;
-            if (buf == null || buf.Length < minSize)
-            {
-                buf = new WB[Math.Max(minSize, 256)];
-                t_enumBuffer = buf;
-            }
-            return buf;
-        }
     }
 }
 #endif
