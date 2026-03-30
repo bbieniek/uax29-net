@@ -1,5 +1,5 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Uax29.Net
 {
@@ -7,15 +7,11 @@ namespace Uax29.Net
     /// Managed implementation of Unicode UAX #29 word boundary segmentation.
     /// <para>
     /// Implements the word break rules from Unicode Standard Annex #29
-    /// (based on ICU word.txt, UAX #29 Revision 34 for Unicode 12.0)
     /// plus the <c>keep_hyphens</c> rule that preserves infix hyphens
     /// between letters/digits (matching quanteda/ICU default behavior).
     /// </para>
-    /// <para>
-    /// Zero dependencies. No native ICU required. Targets netstandard2.0.
-    /// </para>
     /// </summary>
-    public static partial class WordBreakTokenizer
+    public static class WordBreakTokenizer
     {
         /// <summary>
         /// Tokenizes <paramref name="text"/> into word and separator spans
@@ -35,10 +31,10 @@ namespace Uax29.Net
             }
 
             var len = text.Length;
-            var spans = new List<TokenSpan>();
+            var spans = new List<TokenSpan>(len / 5 + 1);
 
             var props = new WB[len];
-            ClassifyAll(text, props);
+            WordBreakClassifier.ClassifyAll(text, props);
 
             var tokenStart = 0;
             var tokenHasLetterOrDigit = props[0].Is(WB.LetterOrDigit);
@@ -50,7 +46,7 @@ namespace Uax29.Net
                     continue;
                 }
 
-                if (ShouldBreak(text, props, pos, len))
+                if (WordBreakRules.ShouldBreak(text, props, pos, len))
                 {
                     spans.Add(new TokenSpan(tokenStart, pos - tokenStart, tokenHasLetterOrDigit));
                     tokenStart = pos;
@@ -75,8 +71,23 @@ namespace Uax29.Net
         {
             var spans = Tokenize(text);
             var result = new List<string>(spans.Count);
-            result.AddRange(spans.Select(span => text.Substring(span.Start, span.Length)));
+            foreach (var span in spans)
+            {
+                result.Add(text.Substring(span.Start, span.Length));
+            }
             return result;
         }
+
+#if NET8_0_OR_GREATER
+        /// <summary>
+        /// Returns a zero-allocation enumerator over word boundary tokens.
+        /// </summary>
+        /// <param name="text">The text to tokenize.</param>
+        /// <returns>A <see cref="WordTokenEnumerator"/> that yields tokens without heap allocation.</returns>
+        public static WordTokenEnumerator EnumerateWords(ReadOnlySpan<char> text)
+        {
+            return new WordTokenEnumerator(text);
+        }
+#endif
     }
 }

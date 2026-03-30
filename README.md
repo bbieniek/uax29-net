@@ -4,7 +4,7 @@
 [![CI](https://github.com/bbieniek/uax29-net/actions/workflows/ci.yml/badge.svg)](https://github.com/bbieniek/uax29-net/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Managed .NET implementation of [Unicode UAX #29](https://www.unicode.org/reports/tr29/) word boundary segmentation. Zero dependencies, no native ICU required.
+Managed .NET implementation of [Unicode UAX #29](https://www.unicode.org/reports/tr29/) word boundary segmentation (Unicode 15.0). No native ICU required.
 
 ## Installation
 
@@ -52,6 +52,18 @@ foreach (var span in spans)
 // → robot (IsWord: True)
 ```
 
+### Zero-allocation API (net8.0+)
+
+On .NET 8 and later, use the zero-allocation enumerator for high-throughput scenarios:
+
+```csharp
+foreach (var token in WordBreakTokenizer.EnumerateWords("hello, world".AsSpan()))
+{
+    // token.Span is ReadOnlySpan<char> — no heap allocation
+    // token.IsWord, token.Start, token.Length also available
+}
+```
+
 ## API
 
 ### `WordBreakTokenizer.Tokenize(string text)`
@@ -91,20 +103,21 @@ The `keep_hyphens` rule matches the default behavior of ICU and [quanteda](https
 
 ## Compatibility
 
-Targets **netstandard2.0** — works on:
+Targets **netstandard2.0** and **net8.0**:
 
 - .NET 8, 9, 10+
 - .NET 6, 7
 - .NET Framework 4.6.1+
-- .NET Framework 4.0 (via source linking)
 - SQL CLR
 
 ## Performance
 
+- **Zero-allocation enumerator** (net8.0+): `ref struct` enumerator via `EnumerateWords()` — no heap allocation per token
+- **Thread-static buffer pooling**: reuses classification arrays across calls
+- **Bitwise property matching**: `[Flags]` enum with single-op combined checks
 - **ASCII fast path**: pre-computed lookup table for characters 0-127
 - **Latin-1 fast path**: direct classification for U+00C0-U+024F (accented European characters)
-- **Single-pass tokenization**: classifies properties and emits tokens without intermediate allocations
-- **Inlined hot paths**: `AggressiveInlining` on frequently called helpers
+- **Inlined hot paths**: `AggressiveInlining` on frequently called predicates
 
 ## How it works
 
@@ -112,7 +125,7 @@ Targets **netstandard2.0** — works on:
 2. **Apply break rules** between each pair of adjacent positions, following UAX #29 rules WB1-WB999 plus the `keep_hyphens` extension
 3. **Emit tokens** with `IsWord` flag based on whether the token contains letters/digits
 
-The implementation is verified against [quanteda](https://quanteda.io/) 4.3.1 (ICU 71.1) tokenization output and [ICU4N](https://github.com/NightOwl888/ICU4N) test cases.
+The implementation is validated against the [official Unicode 15.0 WordBreakTest](https://www.unicode.org/Public/15.0.0/ucd/auxiliary/WordBreakTest.txt) suite (1823 test cases), [quanteda](https://quanteda.io/) 4.3.1 (ICU 71.1) tokenization output, and [ICU4N](https://github.com/NightOwl888/ICU4N) test cases.
 
 ## Contributing
 

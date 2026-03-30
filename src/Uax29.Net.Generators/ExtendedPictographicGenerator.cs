@@ -155,7 +155,7 @@ public sealed class ExtendedPictographicGenerator : ISourceGenerator
         var sb = new StringBuilder();
         sb.AppendLine("namespace Uax29.Net");
         sb.AppendLine("{");
-        sb.AppendLine("    public static partial class WordBreakTokenizer");
+        sb.AppendLine("    internal static partial class WordBreakRules");
         sb.AppendLine("    {");
         sb.AppendLine("        private readonly struct CodePointRange");
         sb.AppendLine("        {");

@@ -75,8 +75,8 @@ namespace Uax29.Net.Tests
             => AssertTokens("(hello)", "(", "hello", ")");
 
         [Test]
-        public void ColonSplits()
-            => AssertTokens("key:value", "key", ":", "value");
+        public void ColonJoins_MidLetter()
+            => AssertTokens("key:value", "key:value");
 
         [Test]
         public void PipeSeparator()

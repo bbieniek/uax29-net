@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace Uax29.Net
 {
-    public static partial class WordBreakTokenizer
+    internal static partial class WordBreakRules
     {
         // Rule index for quick scanning inside ShouldBreak:
         // WB3     : CR x LF
@@ -20,7 +20,38 @@ namespace Uax29.Net
         // WB999   : otherwise break
         // keep_hyphens: custom extension for infix hyphens between AHLetter/Numeric
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool ShouldBreak(string text, WB[] props, int pos, int len)
+        internal static bool ShouldBreak(string text, WB[] props, int pos, int len)
+        {
+            return ShouldBreakCore(props, pos, len, GetCodePointAt(text, pos));
+        }
+
+        private static int GetCodePointAt(string text, int pos)
+        {
+            if (pos >= text.Length) return 0;
+            var c = text[pos];
+            if (char.IsHighSurrogate(c) && pos + 1 < text.Length && char.IsLowSurrogate(text[pos + 1]))
+                return char.ConvertToUtf32(c, text[pos + 1]);
+            return c;
+        }
+
+#if NET8_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool ShouldBreak(System.ReadOnlySpan<char> text, WB[] props, int pos, int len)
+        {
+            return ShouldBreakCore(props, pos, len, GetCodePointAt(text, pos));
+        }
+
+        private static int GetCodePointAt(System.ReadOnlySpan<char> text, int pos)
+        {
+            if (pos >= text.Length) return 0;
+            var c = text[pos];
+            if (char.IsHighSurrogate(c) && pos + 1 < text.Length && char.IsLowSurrogate(text[pos + 1]))
+                return char.ConvertToUtf32(c, text[pos + 1]);
+            return c;
+        }
+#endif
+
+        private static bool ShouldBreakCore(WB[] props, int pos, int len, int codePointAtPos)
         {
             var left = props[pos - 1];
             var right = props[pos];
@@ -62,7 +93,7 @@ namespace Uax29.Net
 
             // --- ZWJ and ignorable format handling (WB3c, WB4) ---
             // WB3c: ZWJ x Extended_Pictographic
-            if (left.Is(WB.ZWJ) && IsExtendedPictographic(text, pos))
+            if (left.Is(WB.ZWJ) && IsInExtendedPictographicRanges(codePointAtPos))
             {
                 return false;
             }
@@ -131,11 +162,17 @@ namespace Uax29.Net
             }
 
             // WB7: AHLetter (MidLetter|MidNumLet|Single_Quote) x AHLetter
-            if (left.Is(WB.MidLetterLike) && effRight.Is(WB.AHLetter) && pos >= 2)
+            if (effLeft.Is(WB.MidLetterLike) && effRight.Is(WB.AHLetter))
             {
-                if (GetEffectiveLeft(props, pos - 2).Is(WB.AHLetter))
+                // Find the position of the MidLetter (effLeft), skipping Ignorable backwards
+                var midPos = pos - 1;
+                while (midPos >= 0 && props[midPos].Is(WB.Ignorable))
+                    midPos--;
+                if (midPos >= 1)
                 {
-                    return false;
+                    var beforeMid = GetEffectiveLeft(props, midPos - 1);
+                    if (beforeMid.Is(WB.AHLetter))
+                        return false;
                 }
             }
 
@@ -166,11 +203,16 @@ namespace Uax29.Net
 
             // --- Numeric punctuation bridges (WB11, WB12) ---
             // WB11: Numeric (MidNum|MidNumLet|Single_Quote) x Numeric
-            if (left.Is(WB.MidNumLike) && effRight.Is(WB.Numeric) && pos >= 2)
+            if (effLeft.Is(WB.MidNumLike) && effRight.Is(WB.Numeric))
             {
-                if (GetEffectiveLeft(props, pos - 2).Is(WB.Numeric))
+                var midPos = pos - 1;
+                while (midPos >= 0 && props[midPos].Is(WB.Ignorable))
+                    midPos--;
+                if (midPos >= 1)
                 {
-                    return false;
+                    var beforeMid = GetEffectiveLeft(props, midPos - 1);
+                    if (beforeMid.Is(WB.Numeric))
+                        return false;
                 }
             }
 
@@ -218,21 +260,21 @@ namespace Uax29.Net
             return true;
         }
 
-        private static WB GetEffectiveLeft(WB[] props, int pos)
+        internal static WB GetEffectiveLeft(WB[] props, int pos)
         {
             while (pos >= 0 && props[pos].Is(WB.Ignorable))
                 pos--;
             return pos >= 0 ? props[pos] : WB.Other;
         }
 
-        private static WB GetEffectiveRight(WB[] props, int pos, int length)
+        internal static WB GetEffectiveRight(WB[] props, int pos, int length)
         {
             while (pos < length && props[pos].Is(WB.Ignorable))
                 pos++;
             return pos < length ? props[pos] : WB.Other;
         }
 
-        private static bool IsExtendedPictographic(string text, int pos)
+        internal static bool IsExtendedPictographic(string text, int pos)
         {
             if (pos >= text.Length)
             {

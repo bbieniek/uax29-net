@@ -2,10 +2,10 @@ using System.Globalization;
 
 namespace Uax29.Net
 {
-    public static partial class WordBreakTokenizer
+    internal static class WordBreakClassifier
     {
         // Pre-computed lookup table for ASCII (0-127).
-        private static readonly WB[] AsciiTable = BuildAsciiTable();
+        internal static readonly WB[] AsciiTable = BuildAsciiTable();
 
         private static WB[] BuildAsciiTable()
         {
@@ -23,6 +23,8 @@ namespace Uax29.Net
 
             t['\''] = WB.SingleQuote;
             t['"'] = WB.DoubleQuote;
+
+            t[':'] = WB.MidLetter;
 
             t[','] = WB.MidNum;
             t[';'] = WB.MidNum;
@@ -46,7 +48,7 @@ namespace Uax29.Net
             return t;
         }
 
-        private static void ClassifyAll(string text, WB[] props)
+        internal static void ClassifyAll(string text, WB[] props)
         {
             for (var i = 0; i < text.Length; i++)
             {
@@ -190,6 +192,12 @@ namespace Uax29.Net
                 return WB.RegionalIndicator;
             }
 
+            // Emoji skin tone modifiers: Word_Break = Extend (Unicode 15.0)
+            if (codePoint >= 0x1F3FB && codePoint <= 0x1F3FF)
+            {
+                return WB.Extend;
+            }
+
             // Supplementary Katakana ranges (Unicode 15.0 WordBreakProperty.txt)
             if ((codePoint >= 0x1AFF0 && codePoint <= 0x1AFF3) ||
                 (codePoint >= 0x1AFF5 && codePoint <= 0x1AFFB) ||
@@ -241,5 +249,32 @@ namespace Uax29.Net
 
             return WB.Other;
         }
+
+#if NET8_0_OR_GREATER
+        internal static void ClassifyAll(System.ReadOnlySpan<char> text, WB[] props, int offset)
+        {
+            for (var i = offset; i < text.Length; i++)
+            {
+                var c = text[i];
+
+                if (c < 128)
+                {
+                    props[i] = AsciiTable[c];
+                    continue;
+                }
+
+                if (char.IsHighSurrogate(c) && i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]))
+                {
+                    var codePoint = char.ConvertToUtf32(c, text[i + 1]);
+                    props[i] = ClassifyCodePoint(codePoint, System.Globalization.CharUnicodeInfo.GetUnicodeCategory(codePoint));
+                    props[i + 1] = WB.Extend;
+                    i++;
+                    continue;
+                }
+
+                props[i] = ClassifyNonAscii(c);
+            }
+        }
+#endif
     }
 }

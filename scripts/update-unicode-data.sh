@@ -6,7 +6,7 @@ set -euo pipefail
 #   ./scripts/update-unicode-data.sh            # defaults to 14.0.0
 #   ./scripts/update-unicode-data.sh 15.1.0     # specific Unicode version
 
-UNICODE_VERSION="${1:-14.0.0}"
+UNICODE_VERSION="${1:-15.0.0}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 TARGET_FILE="${REPO_ROOT}/src/Uax29.Net/UnicodeData/emoji-data.txt"
