@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Uax29.Net
+namespace Bbieniek.Uax29
 {
     internal static class WordBreakClassifier
     {

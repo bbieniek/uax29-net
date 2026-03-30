@@ -1,6 +1,6 @@
 using System;
 
-namespace Uax29.Net
+namespace Bbieniek.Uax29
 {
     [Flags]
     internal enum WB : uint

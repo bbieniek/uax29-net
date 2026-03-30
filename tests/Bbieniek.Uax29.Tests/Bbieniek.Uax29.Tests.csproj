@@ -1,11 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Bbieniek.Uax29.Tests</RootNamespace>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/Uax29.Net/Uax29.Net.csproj" />
+    <ProjectReference Include="../../src/Bbieniek.Uax29/Bbieniek.Uax29.csproj" />
   </ItemGroup>
 
   <ItemGroup>

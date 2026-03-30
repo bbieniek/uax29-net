@@ -7,7 +7,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Uax29.Net.Generators;
+namespace Bbieniek.Uax29.Generators;
 
 [Generator]
 public sealed class ExtendedPictographicGenerator : ISourceGenerator
@@ -153,7 +153,7 @@ public sealed class ExtendedPictographicGenerator : ISourceGenerator
     private static string BuildSource(IEnumerable<(int Start, int End)> ranges)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("namespace Uax29.Net");
+        sb.AppendLine("namespace Bbieniek.Uax29");
         sb.AppendLine("{");
         sb.AppendLine("    internal static partial class WordBreakRules");
         sb.AppendLine("    {");

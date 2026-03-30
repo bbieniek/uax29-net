@@ -5,13 +5,13 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{49EE6637-40C5-487C-B96B-9726A2F287F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uax29.Net", "src\Uax29.Net\Uax29.Net.csproj", "{41458C5A-FFCE-4EAD-90C9-A7F4A352D9E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bbieniek.Uax29", "src\Bbieniek.Uax29\Bbieniek.Uax29.csproj", "{41458C5A-FFCE-4EAD-90C9-A7F4A352D9E1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{DF18C05F-BEC0-4229-A821-ABEA51237C97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uax29.Net.Tests", "tests\Uax29.Net.Tests\Uax29.Net.Tests.csproj", "{3DD8F58E-DDC5-40DB-ACAE-CE0A7CC6591D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bbieniek.Uax29.Tests", "tests\Bbieniek.Uax29.Tests\Bbieniek.Uax29.Tests.csproj", "{3DD8F58E-DDC5-40DB-ACAE-CE0A7CC6591D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uax29.Net.Generators", "src\Uax29.Net.Generators\Uax29.Net.Generators.csproj", "{3A0025A3-7132-44AE-B6E9-39B81925843E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bbieniek.Uax29.Generators", "src\Bbieniek.Uax29.Generators\Bbieniek.Uax29.Generators.csproj", "{3A0025A3-7132-44AE-B6E9-39B81925843E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

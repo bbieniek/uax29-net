@@ -9,7 +9,7 @@ set -euo pipefail
 UNICODE_VERSION="${1:-15.0.0}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-TARGET_FILE="${REPO_ROOT}/src/Uax29.Net/UnicodeData/emoji-data.txt"
+TARGET_FILE="${REPO_ROOT}/src/Bbieniek.Uax29/UnicodeData/emoji-data.txt"
 TEMP_FILE="$(mktemp)"
 URL="https://unicode.org/Public/${UNICODE_VERSION}/ucd/emoji/emoji-data.txt"
 

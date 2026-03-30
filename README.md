@@ -1,46 +1,39 @@
-# Uax29.Net
+# Bbieniek.Uax29
 
-[![NuGet](https://img.shields.io/nuget/v/Uax29.Net.svg)](https://www.nuget.org/packages/Uax29.Net)
+[![NuGet](https://img.shields.io/nuget/v/Bbieniek.Uax29.svg)](https://www.nuget.org/packages/Bbieniek.Uax29)
 [![CI](https://github.com/bbieniek/uax29-net/actions/workflows/ci.yml/badge.svg)](https://github.com/bbieniek/uax29-net/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Managed .NET implementation of [Unicode UAX #29](https://www.unicode.org/reports/tr29/) word boundary segmentation (Unicode 15.0). No native ICU required.
+A managed .NET **word tokenizer** implementing [Unicode UAX #29](https://www.unicode.org/reports/tr29/) word boundary segmentation (Unicode 15.0). Splits text into words, numbers, punctuation, and whitespace tokens — correctly handling multilingual text, emoji, contractions, and numeric formatting.
+
+No native ICU required. Zero dependencies on netstandard2.0. SQL CLR compatible.
+
+## Why use this?
+
+Splitting on spaces or regex gives inconsistent results with real-world text. Unicode UAX #29 is the standard used by ICU, Lucene, quanteda, and most NLP tooling. This package gives you the same tokenization in pure managed .NET:
+
+- `"don't"` stays as one token (apostrophe is MidLetter)
+- `"1,000,000.50"` stays as one token (comma/period are MidNum)
+- `"self-aware"` stays as one token (hyphen preservation)
+- Emoji ZWJ sequences like `👩‍❤️‍💋‍👨` stay together
+- Works with Latin, Greek, Cyrillic, Hebrew, Katakana, CJK, and all Unicode scripts
 
 ## Installation
 
 ```bash
-dotnet add package Uax29.Net
+dotnet add package Bbieniek.Uax29
 ```
-
-## Versioning
-
-Package and assembly versions are generated automatically from Git tags using MinVer.
-
-- Release by creating an annotated tag like `v1.2.3` and pushing it.
-- The publish workflow runs on `v*` tags and packs/pushes that exact semantic version.
-- Builds from non-tag commits produce prerelease versions (for example `1.2.4-preview.0.<height>`).
-
-## Updating Unicode Data
-
-The tokenizer's Extended_Pictographic table is generated at build time from `src/Uax29.Net/UnicodeData/emoji-data.txt`.
-
-To update that source data file, run:
-
-```bash
-./scripts/update-unicode-data.sh           # defaults to Unicode 14.0.0
-./scripts/update-unicode-data.sh 15.1.0    # fetch a specific Unicode version
-```
-
-After updating, run `dotnet test` and commit both the data file and any behavior/test changes.
 
 ## Quick start
 
 ```csharp
-using Uax29.Net;
+using Bbieniek.Uax29;
 
-var tokens = WordBreakTokenizer.TokenizeToStrings("hello,world");
-// → ["hello", ",", "world"]
+// Tokenize into strings
+var tokens = WordBreakTokenizer.TokenizeToStrings("Hello, world! Price: $1,000.50");
+// → ["Hello", ",", " ", "world", "!", " ", "Price", ":", " ", "$", "1,000.50"]
 
+// Tokenize into spans with metadata
 var spans = WordBreakTokenizer.Tokenize("self-aware robot");
 foreach (var span in spans)
 {
@@ -64,23 +57,41 @@ foreach (var token in WordBreakTokenizer.EnumerateWords("hello, world".AsSpan())
 }
 ```
 
+### Quanteda/ICU-compatible mode
+
+By default, colon is treated as MidLetter per the Unicode spec (`"key:value"` → one token). Use `WordBreakOptions.Quanteda` to match ICU/quanteda behavior where colon splits words:
+
+```csharp
+var tokens = WordBreakTokenizer.TokenizeToStrings("key:value", WordBreakOptions.Quanteda);
+// → ["key", ":", "value"]
+```
+
 ## API
 
-### `WordBreakTokenizer.Tokenize(string text)`
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `Tokenize(string)` | `List<TokenSpan>` | Word/separator spans with positions and `IsWord` flag |
+| `Tokenize(string, WordBreakOptions)` | `List<TokenSpan>` | Same, with custom options |
+| `TokenizeToStrings(string)` | `List<string>` | Token strings (convenience) |
+| `TokenizeToStrings(string, WordBreakOptions)` | `List<string>` | Same, with custom options |
+| `EnumerateWords(ReadOnlySpan<char>)` | `WordTokenEnumerator` | Zero-alloc enumerator (net8.0+) |
+| `EnumerateWords(ReadOnlySpan<char>, WordBreakOptions)` | `WordTokenEnumerator` | Same, with custom options |
 
-Returns a `List<TokenSpan>` where each span represents a word or separator segment. Concatenating all spans reproduces the original text.
-
-### `WordBreakTokenizer.TokenizeToStrings(string text)`
-
-Returns a `List<string>` of token strings. Convenience method for when you don't need span positions.
-
-### `TokenSpan`
+### TokenSpan
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `Start` | `int` | Start index in the original string |
 | `Length` | `int` | Number of characters in this token |
 | `IsWord` | `bool` | `true` for words/numbers, `false` for separators/punctuation |
+
+### WordBreakOptions
+
+| Preset | Behavior |
+|--------|----------|
+| `WordBreakOptions.Default` | Strict Unicode UAX #29 (colon is MidLetter) |
+| `WordBreakOptions.Quanteda` | ICU/quanteda-compatible (colon splits words) |
+| `new WordBreakOptions(chars)` | Custom MidLetter exclusions |
 
 ## UAX #29 rules implemented
 
@@ -99,8 +110,6 @@ Returns a `List<string>` of token strings. Convenience method for when you don't
 | WB13a/b | ExtendNumLet (underscore) | `"hello_world"` → one token |
 | **keep_hyphens** | Infix hyphens preserved | `"self-aware"` → one token |
 
-The `keep_hyphens` rule matches the default behavior of ICU and [quanteda](https://quanteda.io/): hyphens (`\p{Pd}`) between letters or digits are preserved as part of the word token.
-
 ## Compatibility
 
 Targets **netstandard2.0** and **net8.0**:
@@ -108,39 +117,23 @@ Targets **netstandard2.0** and **net8.0**:
 - .NET 8, 9, 10+
 - .NET 6, 7
 - .NET Framework 4.6.1+
-- SQL CLR
+- SQL CLR (SAFE mode)
 
 ## Performance
 
-- **Zero-allocation enumerator** (net8.0+): `ref struct` enumerator via `EnumerateWords()` — no heap allocation per token
-- **Thread-static buffer pooling**: reuses classification arrays across calls
+- **Zero-allocation enumerator** (net8.0+): `ref struct` via `EnumerateWords()` — no heap allocation per token
 - **Bitwise property matching**: `[Flags]` enum with single-op combined checks
 - **ASCII fast path**: pre-computed lookup table for characters 0-127
-- **Latin-1 fast path**: direct classification for U+00C0-U+024F (accented European characters)
+- **Latin-1 fast path**: direct classification for U+00C0-U+024F
 - **Inlined hot paths**: `AggressiveInlining` on frequently called predicates
 
-## How it works
+## Unicode conformance
 
-1. **Classify** each character's UAX #29 Word_Break property (using an ASCII lookup table for the fast path, then Unicode category lookups for non-ASCII)
-2. **Apply break rules** between each pair of adjacent positions, following UAX #29 rules WB1-WB999 plus the `keep_hyphens` extension
-3. **Emit tokens** with `IsWord` flag based on whether the token contains letters/digits
+Validated against the [official Unicode 15.0 WordBreakTest](https://www.unicode.org/Public/15.0.0/ucd/auxiliary/WordBreakTest.txt) suite (1823 test cases), plus [quanteda](https://quanteda.io/) 4.3.1 and [ICU4N](https://github.com/NightOwl888/ICU4N) verification.
 
-The implementation is validated against the [official Unicode 15.0 WordBreakTest](https://www.unicode.org/Public/15.0.0/ucd/auxiliary/WordBreakTest.txt) suite (1823 test cases), [quanteda](https://quanteda.io/) 4.3.1 (ICU 71.1) tokenization output, and [ICU4N](https://github.com/NightOwl888/ICU4N) test cases.
+## Versioning
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for any new behavior
-4. Ensure all tests pass (`dotnet test`)
-5. Submit a pull request
-
-When adding test cases for tokenization behavior, verify expected output against R's quanteda:
-
-```r
-library(quanteda)
-tokens("your text here", what = "word", remove_separators = FALSE)
-```
+Package versions are generated from Git tags using MinVer. Release by pushing a tag like `v1.2.3`.
 
 ## License
 

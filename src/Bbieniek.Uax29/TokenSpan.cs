@@ -1,4 +1,4 @@
-namespace Uax29.Net;
+namespace Bbieniek.Uax29;
 
 /// <summary>
 /// A token span representing a segment of the input text.

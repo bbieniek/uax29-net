@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace Uax29.Net
+namespace Bbieniek.Uax29
 {
     /// <summary>
     /// A token returned by the zero-allocation word enumerator.

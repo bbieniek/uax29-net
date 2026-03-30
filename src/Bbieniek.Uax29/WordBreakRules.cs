@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Uax29.Net
+namespace Bbieniek.Uax29
 {
     internal static partial class WordBreakRules
     {

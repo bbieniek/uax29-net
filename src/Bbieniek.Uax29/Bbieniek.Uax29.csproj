@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
-    <RootNamespace>Uax29.Net</RootNamespace>
-    <AssemblyName>Uax29.Net</AssemblyName>
+    <RootNamespace>Bbieniek.Uax29</RootNamespace>
+    <AssemblyName>Bbieniek.Uax29</AssemblyName>
 
     <!-- NuGet package metadata -->
-    <PackageId>Uax29.Net</PackageId>
+    <PackageId>Bbieniek.Uax29</PackageId>
     <Authors>Baltazar Bieniek</Authors>
     <Description>Managed .NET implementation of Unicode UAX #29 word boundary segmentation. No native ICU required.</Description>
     <PackageTags>unicode;uax29;tokenizer;word-boundary;nlp;text-segmentation;icu;quanteda</PackageTags>
@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Uax29.Net.Generators/Uax29.Net.Generators.csproj"
+    <ProjectReference Include="../Bbieniek.Uax29.Generators/Bbieniek.Uax29.Generators.csproj"
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false"
                       PrivateAssets="all" />
@@ -43,7 +43,7 @@
 
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-      <_Parameter1>Uax29.Net.Tests</_Parameter1>
+      <_Parameter1>Bbieniek.Uax29.Tests</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
 

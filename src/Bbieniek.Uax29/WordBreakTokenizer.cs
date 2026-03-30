@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Uax29.Net
+namespace Bbieniek.Uax29
 {
     /// <summary>
     /// Managed implementation of Unicode UAX #29 word boundary segmentation.

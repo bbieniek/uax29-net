@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using NUnit.Framework;
-using Uax29.Net;
+using Bbieniek.Uax29;
 
-namespace Uax29.Net.Tests
+namespace Bbieniek.Uax29.Tests
 {
     [TestFixture]
     public class WordBreakTokenizerTests

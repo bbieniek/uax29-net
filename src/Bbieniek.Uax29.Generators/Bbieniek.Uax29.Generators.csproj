@@ -5,8 +5,8 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <AssemblyName>Uax29.Net.Generators</AssemblyName>
-    <RootNamespace>Uax29.Net.Generators</RootNamespace>
+    <AssemblyName>Bbieniek.Uax29.Generators</AssemblyName>
+    <RootNamespace>Bbieniek.Uax29.Generators</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
