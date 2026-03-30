@@ -12,6 +12,27 @@ Managed .NET implementation of [Unicode UAX #29](https://www.unicode.org/reports
 dotnet add package Uax29.Net
 ```
 
+## Versioning
+
+Package and assembly versions are generated automatically from Git tags using MinVer.
+
+- Release by creating an annotated tag like `v1.2.3` and pushing it.
+- The publish workflow runs on `v*` tags and packs/pushes that exact semantic version.
+- Builds from non-tag commits produce prerelease versions (for example `1.2.4-preview.0.<height>`).
+
+## Updating Unicode Data
+
+The tokenizer's Extended_Pictographic table is generated at build time from `src/Uax29.Net/UnicodeData/emoji-data.txt`.
+
+To update that source data file, run:
+
+```bash
+./scripts/update-unicode-data.sh           # defaults to Unicode 14.0.0
+./scripts/update-unicode-data.sh 15.1.0    # fetch a specific Unicode version
+```
+
+After updating, run `dotnet test` and commit both the data file and any behavior/test changes.
+
 ## Quick start
 
 ```csharp

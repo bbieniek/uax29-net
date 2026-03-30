@@ -1,9 +1,14 @@
 <Project>
   <PropertyGroup>
-    <Version>1.0.0</Version>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <MinVerDefaultPreReleaseIdentifiers>preview.0</MinVerDefaultPreReleaseIdentifiers>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <Deterministic>true</Deterministic>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinVer" Version="5.*" PrivateAssets="All" />
+  </ItemGroup>
 </Project>

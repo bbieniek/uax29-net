@@ -156,6 +156,38 @@ namespace Uax29.Net.Tests
         public void ZWJ_AttachesToWord()
             => AssertTokens("a\u200db", "a\u200db");
 
+        [Test]
+        public void RegionalIndicatorFlag_StaysTogether_QuantedaVerified()
+            => AssertTokens("\U0001F1FA\U0001F1F8", "\U0001F1FA\U0001F1F8");
+
+        [Test]
+        public void SupplementaryLetterNumber_WithinWord_QuantedaVerified()
+            => AssertTokens("a\U00010140b", "a\U00010140b");
+
+        [Test]
+        public void SupplementaryLetterNumber_Repeated_QuantedaVerified()
+            => AssertTokens("\U00010140\U00010140", "\U00010140\U00010140");
+
+        [Test]
+        public void CopyrightZwJCopyright_StaysTogether_QuantedaVerified()
+            => AssertTokens("\u00A9\u200D\u00A9", "\u00A9\u200D\u00A9");
+
+        [Test]
+        public void RegionalIndicators_FourCodepoints_SplitIntoFlagPairs_QuantedaVerified()
+            => AssertTokens("\U0001F1FA\U0001F1F8\U0001F1E8\U0001F1E6", "\U0001F1FA\U0001F1F8", "\U0001F1E8\U0001F1E6");
+
+        [Test]
+        public void RegionalIndicators_ThreeCodepoints_LastSeparates_QuantedaVerified()
+            => AssertTokens("\U0001F1FA\U0001F1F8\U0001F1FA", "\U0001F1FA\U0001F1F8", "\U0001F1FA");
+
+        [Test]
+        public void KissEmojiZwJSequence_StaysTogether_QuantedaVerified()
+            => AssertTokens("\U0001F469\u200D\u2764\uFE0F\u200D\U0001F48B\u200D\U0001F468", "\U0001F469\u200D\u2764\uFE0F\u200D\U0001F48B\u200D\U0001F468");
+
+        [Test]
+        public void RainbowFlagZwJSequence_StaysTogether_QuantedaVerified()
+            => AssertTokens("\U0001F3F3\uFE0F\u200D\U0001F308", "\U0001F3F3\uFE0F\u200D\U0001F308");
+
         // --- TokenSpan properties ---
 
         [Test]

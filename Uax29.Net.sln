@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{DF18C05F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uax29.Net.Tests", "tests\Uax29.Net.Tests\Uax29.Net.Tests.csproj", "{3DD8F58E-DDC5-40DB-ACAE-CE0A7CC6591D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uax29.Net.Generators", "src\Uax29.Net.Generators\Uax29.Net.Generators.csproj", "{3A0025A3-7132-44AE-B6E9-39B81925843E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,9 +30,14 @@ Global
 		{3DD8F58E-DDC5-40DB-ACAE-CE0A7CC6591D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DD8F58E-DDC5-40DB-ACAE-CE0A7CC6591D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DD8F58E-DDC5-40DB-ACAE-CE0A7CC6591D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A0025A3-7132-44AE-B6E9-39B81925843E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A0025A3-7132-44AE-B6E9-39B81925843E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A0025A3-7132-44AE-B6E9-39B81925843E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A0025A3-7132-44AE-B6E9-39B81925843E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{41458C5A-FFCE-4EAD-90C9-A7F4A352D9E1} = {49EE6637-40C5-487C-B96B-9726A2F287F9}
 		{3DD8F58E-DDC5-40DB-ACAE-CE0A7CC6591D} = {DF18C05F-BEC0-4229-A821-ABEA51237C97}
+		{3A0025A3-7132-44AE-B6E9-39B81925843E} = {49EE6637-40C5-487C-B96B-9726A2F287F9}
 	EndGlobalSection
 EndGlobal
